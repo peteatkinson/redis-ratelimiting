@@ -2,4 +2,7 @@ module github.com/rwxpeter/sliding-rate-limit
 
 go 1.16
 
-require github.com/go-redis/redis/v8 v8.11.4 // indirect
+require (
+	github.com/go-redis/redis/v8 v8.11.4
+	github.com/stretchr/testify v1.5.1
+)
