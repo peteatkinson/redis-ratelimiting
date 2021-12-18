@@ -16,9 +16,9 @@ func TestTokenBucket(t *testing.T) {
 
 	r := New(client, time.Hour*1, 5)
 
-	assert.NoError(t, r.Update(context.Background(), "user1"))
-	assert.NoError(t, r.Update(context.Background(), "user1"))
-	assert.NoError(t, r.Update(context.Background(), "user1"))
-	assert.NoError(t, r.Update(context.Background(), "user1"))
-	assert.NoError(t, r.Update(context.Background(), "user1"))
+	assert.NoError(t, r.Update(context.Background(), "user7"))
+	assert.NoError(t, r.Update(context.Background(), "user7"))
+	assert.NoError(t, r.Update(context.Background(), "user7"))
+	assert.NoError(t, r.Update(context.Background(), "user7"))
+	assert.NoError(t, r.Update(context.Background(), "user7"))
 }

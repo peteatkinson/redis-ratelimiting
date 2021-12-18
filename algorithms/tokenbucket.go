@@ -53,8 +53,8 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 	fmt.Sprintln(values)
 
 	if err != nil || len(values) == 0 {
-		// No hash exists at that key, we can create a new one
-		r.set(ctx, key, r.rate, unixNow)
+		// No hash exists at that key, we can create a new one (-1 on rate as first hit is one use of a token)
+		r.client.HSet(ctx, key, "tokens", fmt.Sprint(r.rate-1), "ts", fmt.Sprint(unixNow))
 		return nil
 	}
 
@@ -81,13 +81,13 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 	// IF the current time distance between now and the last access timestamp is higher than the deadline timestamp
 	if delta >= deadline {
 		// refill the bucket
-		r.set(ctx, key, r.rate, unixNow)
+		r.client.HSet(ctx, key, "tokens", fmt.Sprint(r.rate), "ts", fmt.Sprint(unixNow))
 	} else {
 		// Otherwise check if we have any tokens left in the bucket
 		if tokens > 0 {
 			// If we do then we can update the Hash with the new token count and timestamp
 			remainder := tokens - 1
-			r.set(ctx, key, remainder, unixNow)
+			r.client.HSet(ctx, key, "tokens", fmt.Sprint(remainder), "ts", fmt.Sprint(unixNow))
 		} else {
 			// Otherwise, we've exceeded the limit before the deadline, return error
 			return ErrorLimitExceeded(r.rate, time.Unix(deadline, 0))
@@ -95,8 +95,4 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 	}
 
 	return nil
-}
-
-func (r *Redis) set(ctx context.Context, key string, tokens int, timeStamp int64) {
-	r.client.HSet(ctx, key, "tokens", fmt.Sprint(tokens), fmt.Sprint(timeStamp))
 }
