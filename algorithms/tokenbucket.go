@@ -58,6 +58,7 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 	if len(values) == 0 {
 		// No hash exists at that key, we can create a new one (-1 on rate as first hit is one use of a token)
 		r.client.HSet(ctx, key, "tokens", fmt.Sprint(r.rate-1), "ts", fmt.Sprint(unixNow))
+		return nil
 	}
 
 	// Get timestamp from Redis HASH
@@ -76,7 +77,7 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 
 	// Do a bunch of convertions on the STRING values
 	tsUnix := time.Unix(ts, 0)
-	delta := tsUnix.Add(time.Duration(unixNow-ts) * time.Millisecond).Unix()
+	delta := unixNow
 
 	deadline := tsUnix.Add(r.limitPeriod).Unix()
 
@@ -89,7 +90,7 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 		if tokens > 0 {
 			// If we do then we can update the Hash with the new token count and timestamp
 			remainder := tokens - 1
-			r.client.HSet(ctx, key, "tokens", fmt.Sprint(remainder), "ts", fmt.Sprint(unixNow))
+			r.client.HSet(ctx, key, "tokens", fmt.Sprint(remainder), "ts", ts)
 		} else {
 			// Otherwise, we've exceeded the limit before the deadline, return error
 			return ErrorLimitExceeded(r.rate, time.Unix(deadline, 0))
@@ -97,4 +98,13 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 	}
 
 	return nil
+}
+
+func NewClient(limitPeriod time.Duration, rate int) (Redis, func()) {
+	client := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+
+	r := New(client, limitPeriod, rate)
+	return *r, func() { client.Close() }
 }
