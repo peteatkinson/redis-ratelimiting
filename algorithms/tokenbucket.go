@@ -50,12 +50,14 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 
 	values, err := r.client.HGetAll(ctx, key).Result()
 
-	fmt.Sprintln(values)
+	if err != nil {
+		// Redis Connection issue
+		return nil
+	}
 
-	if err != nil || len(values) == 0 {
+	if len(values) == 0 {
 		// No hash exists at that key, we can create a new one (-1 on rate as first hit is one use of a token)
 		r.client.HSet(ctx, key, "tokens", fmt.Sprint(r.rate-1), "ts", fmt.Sprint(unixNow))
-		return nil
 	}
 
 	// Get timestamp from Redis HASH
