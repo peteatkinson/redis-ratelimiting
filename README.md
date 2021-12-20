@@ -9,7 +9,19 @@ The approaches are taken from [this blog post](https://www.figma.com/blog/an-alt
 
 This is honestly just an experimental bit of coding for my own personal development, so take all this code with caution.
 ## Token Bucket
-Needs writting....
+
+The first and proberbly the most simpliest of algorithms to implmenet rate-limiting with is known as the Token bucket. 
+
+Simply, how it works - is we keep track of the requests coming in with a Redis Hash.
+
+See below for an example for each unique request that comes in.
+```
+
+127.0.0.1 (user-1): {"ts": "1639986575", "tokens": 5}
+```
+
+The token bucket keeps track of the timestamp and the total remaining tokens left. If all tokens are exhuasted within a given time window then we drop an incoming request for that particular user. After the time window is up, we refill the tokens within the hash and the cycle continues.
+
 
 ## Leaky Bucket
 Needs writting....
