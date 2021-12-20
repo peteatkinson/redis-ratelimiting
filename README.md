@@ -30,7 +30,7 @@ type TokenBucketLimiter interface {
 The implementation for the token bucket is backed by Redis and uses the go-redis library.
 
 ```go
-client := redis.NewClient(&goredis.Options{
+client := redis.NewClient(&redis.Options{
     Addr: "localhost:6379",
 })
 
