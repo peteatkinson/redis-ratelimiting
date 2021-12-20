@@ -6,8 +6,10 @@ It includes (or atleast will include) a few examples of using Redis to create Ra
 These include, the token-bucket, leaky-bucket and sliding-log alogrithms.
 
 ## Token Bucket
-TBF
+Needs writting....
 
 ## Leaky Bucket
+Needs writting....
 
 ## Sliding Log (or window Sliding Log)
+Needs writting....
