@@ -1,4 +1,4 @@
-package algorithms
+package limiters
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/rwxpeter/sliding-rate-limit/errors"
 )
 
 type Redis struct {
@@ -15,29 +16,8 @@ type Redis struct {
 	rate        int
 }
 
-type RateLimiter interface {
-	Update(context.Context, int) error
-}
-
-type RateLimitExceeded struct {
-	error
-	Limit int
-	Reset time.Time
-}
-
-func ErrorLimitExceeded(limit int, reset time.Time) error {
-	return RateLimitExceeded{
-		Limit: limit,
-		Reset: reset,
-	}
-}
-
-func (e RateLimitExceeded) ErrorString() string {
-	return fmt.Sprintf(
-		"rate limit of %d has been exceeded and resets at %v",
-		e.Limit,
-		e.Reset,
-	)
+type TokenBucketLimiter interface {
+	Update(context.Context, string) error
 }
 
 func New(client *redis.Client, limitPeriod time.Duration, rate int) *Redis {
@@ -49,10 +29,9 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 	unixNow := now.Unix()
 
 	values, err := r.client.HGetAll(ctx, key).Result()
-
 	if err != nil {
 		// Redis Connection issue
-		return nil
+		return err
 	}
 
 	if len(values) == 0 {
@@ -63,7 +42,6 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 
 	// Get timestamp from Redis HASH
 	ts, err := strconv.ParseInt(values["ts"], 10, 32)
-
 	if err != nil {
 		return err
 	}
@@ -80,7 +58,6 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 	delta := unixNow
 
 	deadline := tsUnix.Add(r.limitPeriod).Unix()
-
 	// IF the current time distance between now and the last access timestamp is higher than the deadline timestamp
 	if delta >= deadline {
 		// refill the bucket
@@ -93,7 +70,7 @@ func (r *Redis) Update(ctx context.Context, key string) error {
 			r.client.HSet(ctx, key, "tokens", fmt.Sprint(remainder), "ts", ts)
 		} else {
 			// Otherwise, we've exceeded the limit before the deadline, return error
-			return ErrorLimitExceeded(r.rate, time.Unix(deadline, 0))
+			return errors.ErrorLimitExceeded(r.rate, time.Unix(deadline, 0))
 		}
 	}
 

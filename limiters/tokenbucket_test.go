@@ -1,4 +1,4 @@
-package algorithms
+package limiters
 
 import (
 	"context"
@@ -52,6 +52,7 @@ func TestReturnErrorWhenBucketCapacityExhausted(t *testing.T) {
 	assert.NoError(t, r.Update(ctx, user))
 	assert.Error(t, r.Update(ctx, user))
 }
+
 func TestReturnErrorWhenMaxRateExceeded(t *testing.T) {
 	ctx := context.Background()
 	user := NewUser()
