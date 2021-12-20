@@ -7,6 +7,7 @@ These include, the token-bucket, leaky-bucket and sliding-log alogrithms.
 
 The approaches are taken from [this blog post](https://www.figma.com/blog/an-alternative-approach-to-rate-limiting) from the Figma Engineering team
 
+This is honestly just an experimental bit of coding for my own personal development, so take all this code with caution.
 ## Token Bucket
 Needs writting....
 
