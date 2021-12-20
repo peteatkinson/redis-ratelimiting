@@ -16,7 +16,7 @@ _Simply, how it works_ is we keep track of the requests coming in with a Redis H
 
 See below for an example for each unique request that comes in.
 ```
-127.0.0.1 (user-1): {"ts": "1639986575", "tokens": 5}
+127.0.0.1 (user-1): {"ts": "1639986575", "tokens": "5"}
 ```
 
 The token bucket keeps track of the timestamp and the total remaining tokens left. If all tokens are exhuasted within a given time window then we drop an incoming request for that particular user. After the time window is up, we refill the tokens within the hash and the cycle continues.
