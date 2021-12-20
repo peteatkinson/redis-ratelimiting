@@ -12,7 +12,7 @@ This is honestly just an experimental bit of coding for my own personal developm
 
 The first and proberbly the most simpliest of algorithms to implmenet rate-limiting with is known as the Token bucket. 
 
-__Simply, how it works__ is we keep track of the requests coming in with a Redis Hash.
+_Simply, how it works_ is we keep track of the requests coming in with a Redis Hash.
 
 See below for an example for each unique request that comes in.
 ```
