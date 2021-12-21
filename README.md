@@ -1,7 +1,7 @@
 # Redis Ratelimiting in Go
 
 
-This repository provides a few exporatory examples of rate limiting algorithms written in Go. 
+This repository provides a few exploratory examples of rate limiting algorithms written in Go. 
 It includes (or atleast will include) a few examples of using Redis to create Ratelimiters by using a few of the common algorithms for rate limiting.
 These include, the token-bucket, leaky-bucket and sliding-log alogrithms.
 
@@ -12,15 +12,14 @@ This is honestly just an experimental bit of coding for my own personal developm
 
 The first and proberbly the most simpliest of algorithms to implmenet rate-limiting with is known as the Token bucket. 
 
-Simply, how it works - is we keep track of the requests coming in with a Redis Hash.
+_Simply, how it works_ is we keep track of the requests coming in with a Redis Hash.
 
 See below for an example for each unique request that comes in.
 ```
-
-127.0.0.1 (user-1): {"ts": "1639986575", "tokens": 5}
+127.0.0.1 (user-1): {"ts": "1639986575", "tokens": "5"}
 ```
 
-The token bucket keeps track of the timestamp and the total remaining tokens left. If all tokens are exhuasted within a given time window then we drop an incoming request for that particular user. After the time window is up, we refill the tokens within the hash and the cycle continues.
+The token bucket keeps track of the timestamp (last time the hash was updated) and the total remaining tokens left. If all tokens are exhuasted within a given time window then we drop all incoming request for that particular user. After the time window is up, we refill the tokens within the hash and the cycle continues.
 
 
 ## Leaky Bucket
