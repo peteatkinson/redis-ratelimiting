@@ -25,3 +25,28 @@ func (e RateLimitExceeded) Error() string {
 		e.Reset,
 	)
 }
+
+type GrcaRateLimtExceeded struct {
+	Quantity   int64
+	Remaining  int64
+	RetryAfter int64
+	ResetAfter int64
+}
+
+func GrcaRateLimitExceeded(quantity int64, remaining int64, retryAfter int64, resetAfter int64) error {
+	return GrcaRateLimtExceeded{
+		Quantity:   quantity,
+		Remaining:  remaining,
+		RetryAfter: retryAfter,
+		ResetAfter: resetAfter,
+	}
+}
+
+func (e GrcaRateLimtExceeded) Error() string {
+	return fmt.Sprintf(
+		"rate limit of %d has been exceeded with %d remaining and and resets at %v",
+		e.Quantity,
+		e.Remaining,
+		e.ResetAfter,
+	)
+}
